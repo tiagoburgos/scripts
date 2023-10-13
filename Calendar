@@ -1,0 +1,27 @@
+function criarEventosNoCalendario() {
+  // Obter a planilha da URL
+  var planilha = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1W-UImzl4kjFdX95_cYqe0v1eGUE1CG4cClqGrd0HoSU/edit#gid=0');
+  var folha = planilha.getSheetByName('NOME_DA_SUA_FOLHA'); // Substitua pelo nome da sua folha
+
+  // Obter dados da planilha
+  var dados = folha.getDataRange().getValues();
+
+  // Iterar sobre os dados e criar eventos no calendário
+  for (var i = 1; i < dados.length; i++) { // Começando do índice 1 para evitar o cabeçalho
+    var cliente = dados[i][0];
+    var dataRenovacao = dados[i][1];
+
+    // Criar evento no calendário
+    var evento = CalendarApp.getDefaultCalendar().createAllDayEvent(
+      cliente + ' - Renovação',
+      new Date(dataRenovacao),
+      { description: 'Renovação anual', sendInvites: true }
+    );
+
+    // Configurar repetição anual
+    evento.createAllDayEventSeries(new Date(dataRenovacao), CalendarApp.newRecurrence().addYearlyRule().times(100));
+
+    // Configurar lembrete 30 dias antes
+    evento.addEmailReminder(30 * 24 * 60); // 30 dias em minutos
+  }
+}
